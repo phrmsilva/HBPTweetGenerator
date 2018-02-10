@@ -8,35 +8,24 @@ api = twitter.Api(consumer_key=os.environ['CONSUMER_KEY'],
 
 DEFAULT_COUNT = 200
 
-def get_tweets(user_name, count=DEFAULT_COUNT):
-    tweets_text = [s.text.encode('ascii', 'ignore') for s in api.GetUserTimeline(include_rts=False,
-                                                                                 screen_name=user_name)]
+def get_tweets(user_name, retweets=True, count=DEFAULT_COUNT):
+    print('Getting tweets...')
+    all_tweets = []
 
-    if (count <= DEFAULT_COUNT):
-        tweets_text = [s.text for s in api.GetUserTimeline(include_rts=False, screen_name=user_name)]
-    else:
-        tweets = api.GetUserTimeline(include_rts=True, screen_name=user_name)
-        remaining = count - DEFAULT_COUNT
-        last_tweet = tweets[-1].id
-        tweets_text = [t.text for t in tweets]
+    newest_tweet_set = api.GetUserTimeline(screen_name=user_name, include_rts=retweets, count=count)
+    all_tweets.extend(newest_tweet_set)
+    oldest = all_tweets[-1]
 
-        while remaining > 0:
-            to_request = 0
-            if remaining > 200:
-                to_request = 200
-                remaining -= 200
-            else:
-                to_request = remaining
-                remaining = 0
+    while len(newest_tweet_set) > 0:
+        newest_tweet_set = api.GetUserTimeline(screen_name=user_name, include_rts=retweets, count=count, max_id=(oldest.id-1))
+        all_tweets.extend(newest_tweet_set)
+        oldest = all_tweets[-1]
 
-        tweets = api.GetUserTimeline(include_rts=False, screen_name=user_name, count=to_request, max_id=last_tweet)
-        if len(tweets) > 0:
-            last_tweet = tweets[-1].id
-        tweets_text += [t.text for t in tweets]
-    return unicode_to_str(tweets_text)
+    print('Retrieved {} tweets from {} since {}'.format(len(all_tweets), user_name, oldest.created_at))
+    return unicode_to_str(all_tweets)
 
 def unicode_to_str(uc_list):
-    return [s.encode('ascii', 'ignore') for s in uc_list]
+    return [s.text.encode('ascii', 'ignore') for s in uc_list]
 
 def get_tweets_to_file(user_name, count=DEFAULT_COUNT, file_path=None):
     if file_path is None:
