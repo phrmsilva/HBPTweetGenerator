@@ -15,7 +15,6 @@ DEFAULT_RESULT_TYPE = 'mixed'
 BANDS = json.load(open('./bands.json'))
 
 def get_tweets(user_name, retweets=True, count=DEFAULT_TWEET_COUNT):
-    print 'Getting tweets...'
     all_tweets = []
 
     newest_tweet_set = api.GetUserTimeline(screen_name=user_name, include_rts=retweets, count=count)
@@ -30,7 +29,6 @@ def get_tweets(user_name, retweets=True, count=DEFAULT_TWEET_COUNT):
                 all_tweets.extend(newest_tweet_set)
                 oldest = all_tweets[-1]
 
-        print('Retrieved {} tweets from {} since {}'.format(len(all_tweets), user_name, oldest.created_at))
     return unicode_to_str(all_tweets)
 
 def get_search_tweets(band_name, count, result_type, max_id=None):
@@ -57,15 +55,15 @@ def get_fan_tweets(band_name, count=DEFAULT_SEARCH_RESULTS, result_type=DEFAULT_
     return fan_tweets
 
 def get_bands_tweets():
-    f = open('./band_and_tweets.json', 'w')
-    d = {}
     for band in BANDS:
+        print ("Getting tweets for " + band + "..."),
+        f = open('./band_tweets/' + band + '.json', 'w')
         all_fan_tweets = []
         for l in get_fan_tweets(band):
             all_fan_tweets.extend(l)
-        d[band] = all_fan_tweets
-    f.write(json.dumps(d))
-    f.close()
+        print str(len(all_fan_tweets))
+        f.write(json.dumps(all_fan_tweets))
+        f.close()
 
 def gbt():
     get_bands_tweets()
