@@ -10,7 +10,6 @@ import numpy
 lstemmer = nltk.stem.lancaster.LancasterStemmer()
 
 JUST_BANDS = './bands.json'
-BANDS_AND_TWEETS = './search_data.json'
 
 def import_json_data(filePath):
     return json.load(open(filePath))
@@ -24,7 +23,7 @@ def generate_nn_model(for_training=True):
     documents = []
 
     for b in bands:
-        band_tweets_data = import_json_data('./band_tweets/' + b + '.json')
+        band_tweets_data = import_json_data('../band_tweets/' + b + '.json')
         for tweet in band_tweets_data:
             clean_tweet = strip_punctuation(tweet)
             twords = nltk.word_tokenize(clean_tweet)
