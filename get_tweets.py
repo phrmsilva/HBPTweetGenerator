@@ -1,5 +1,5 @@
 import twitter
-import os, json
+import os, json, time
 
 api = twitter.Api(consumer_key=os.environ['CONSUMER_KEY'],
         consumer_secret = os.environ['CONSUMER_SECRET'],
@@ -20,20 +20,21 @@ def get_tweets(user_name, retweets=True, count=DEFAULT_TWEET_COUNT):
 
     newest_tweet_set = api.GetUserTimeline(screen_name=user_name, include_rts=retweets, count=count)
     all_tweets.extend(newest_tweet_set)
-    oldest = all_tweets[-1]
+    if len(all_tweets) > 0:
+        oldest = all_tweets[-1]
 
-    if count > DEFAULT_TWEET_COUNT:
-        while len(newest_tweet_set) > 0:
-            newest_tweet_set = api.GetUserTimeline(screen_name=user_name,
-                include_rts=retweets, count=count, max_id=(oldest.id-1))
-            all_tweets.extend(newest_tweet_set)
-            oldest = all_tweets[-1]
+        if count > DEFAULT_TWEET_COUNT:
+            while len(newest_tweet_set) > 0:
+                newest_tweet_set = api.GetUserTimeline(screen_name=user_name,
+                    include_rts=retweets, count=count, max_id=(oldest.id-1))
+                all_tweets.extend(newest_tweet_set)
+                oldest = all_tweets[-1]
 
-    print('Retrieved {} tweets from {} since {}'.format(len(all_tweets), user_name, oldest.created_at))
+        print('Retrieved {} tweets from {} since {}'.format(len(all_tweets), user_name, oldest.created_at))
     return unicode_to_str(all_tweets)
 
 def get_search_tweets(band_name, count, result_type, max_id=None):
-    return api.GetSearch(term=band_name, count=count, result_type=result_type, max_id=max_id)
+    return api.GetSearch(term=band_name, count=count, result_type=result_type, max_id=max_id, lang='en')
 
 def get_users_from_tweets(tweets, only_non_verified=True):
     if only_non_verified:
@@ -56,10 +57,18 @@ def get_fan_tweets(band_name, count=DEFAULT_SEARCH_RESULTS, result_type=DEFAULT_
     return fan_tweets
 
 def get_bands_tweets():
+    f = open('./band_and_tweets.json', 'w')
     d = {}
-    for b in BANDS:
-        d[b] = get_fan_tweets(b)
-    return d
+    for band in BANDS:
+        all_fan_tweets = []
+        for l in get_fan_tweets(band):
+            all_fan_tweets.extend(l)
+        d[band] = ' '.join(all_fan_tweets)
+    f.write(json.dumps(d))
+    f.close()
+
+def gbt():
+    get_bands_tweets()
 
 def unicode_to_str(uc_list):
     return [s.text.encode('ascii', 'ignore') for s in uc_list]
