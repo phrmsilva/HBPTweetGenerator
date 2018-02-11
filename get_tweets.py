@@ -1,5 +1,5 @@
 import twitter
-import os
+import os, json
 
 api = twitter.Api(consumer_key=os.environ['CONSUMER_KEY'],
         consumer_secret = os.environ['CONSUMER_SECRET'],
@@ -12,18 +12,7 @@ DEFAULT_SEARCH_RESULTS = 5
 MAX_USER_SEARCH = 100
 DEFAULT_RESULT_TYPE = 'mixed'
 
-BANDS = [
-    'grateful dead',
-    'the beatles',
-    'taylor swift',
-    'rihanna',
-    'ed sheeran',
-    'queen',
-    'bruce springsteen',
-    'u2',
-    'beyonce',
-    'kendrick lamar'
-]
+BANDS = json.load(open('./bands.json'))
 
 def get_tweets(user_name, retweets=True, count=DEFAULT_TWEET_COUNT):
     print 'Getting tweets...'
