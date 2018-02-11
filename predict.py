@@ -20,7 +20,7 @@ def strip_punctuation(s):
 
 def train(username):
 
-    band_tweets_data = import_json_data('./bandstweets.json')
+    band_tweets_data = import_json_data('./band_and_tweets.json')
     bands = list(band_tweets_data.keys())
     all_words = []
     documents = []
@@ -63,7 +63,7 @@ def train(username):
     tf.reset_default_graph()
     nn = tfl.input_data(shape=[None, len(train_tweets[0])])
     nn = tfl.fully_connected(nn, 8)
-    nn = tfl.fully_connected(nn, 8)
+    # nn = tfl.fully_connected(nn, 8)
     nn = tfl.fully_connected(nn, len(train_bands[0]), activation='softmax')
     nn = tfl.regression(nn)
 
@@ -75,7 +75,7 @@ def train(username):
     eval(username, model, all_words)
 
 def tensorflow_record(user, all_words):
-    tweets_words = nltk.word_tokenize(open('./user.txt').read())
+    tweets_words = nltk.word_tokenize(open('./' + user + '.txt').read())
     stem_tweets_words = [lstemmer.stem(tw) for tw in tweets_words]
     doc_words = [0] * len(all_words)
     for stw in stem_tweets_words:
@@ -88,6 +88,6 @@ def tensorflow_record(user, all_words):
 def eval(username, m, all_words):
     tfr = tensorflow_record(username, all_words)
     # m = model.load('model.tflearn')
-    print str(import_json_data('./bandstweets.json').keys()[numpy.argmax(m.predict([tfr]))])
+    print str(import_json_data('./band_and_tweets.json').keys()[numpy.argmax(m.predict([tfr]))])
 
-train()
+train('joey_donovan')

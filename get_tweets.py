@@ -63,7 +63,7 @@ def get_bands_tweets():
         all_fan_tweets = []
         for l in get_fan_tweets(band):
             all_fan_tweets.extend(l)
-        d[band] = ' '.join(all_fan_tweets)
+        d[band] = all_fan_tweets
     f.write(json.dumps(d))
     f.close()
 
@@ -75,7 +75,7 @@ def unicode_to_str(uc_list):
 
 def get_tweets_to_file(user_name, count=DEFAULT_TWEET_COUNT, file_path=None):
     if file_path is None:
-        file_path = './resources/' + user_name + '.txt'
+        file_path = './' + user_name + '.txt'
     f = open(file_path, 'w')
     for t in get_tweets(user_name, count):
         f.write(t + '\n')
