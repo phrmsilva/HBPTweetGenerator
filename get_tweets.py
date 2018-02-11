@@ -62,7 +62,7 @@ def get_bands_tweets():
         for l in get_fan_tweets(band):
             all_fan_tweets.extend(l)
         print str(len(all_fan_tweets))
-        f.write(json.dumps(all_fan_tweets))
+        f.write(json.dumps(all_fan_tweets, indent=4))
         f.close()
 
 def gbt():
